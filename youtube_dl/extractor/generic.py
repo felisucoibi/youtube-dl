@@ -80,7 +80,7 @@ from .theplatform import ThePlatformIE
 from .kaltura import KalturaIE
 from .eagleplatform import EaglePlatformIE
 from .facebook import FacebookIE
-from .soundcloud import SoundcloudIE
+from .soundcloud import SoundcloudEmbedIE
 from .tunein import TuneInBaseIE
 from .vbox7 import Vbox7IE
 from .dbtv import DBTVIE
@@ -88,10 +88,6 @@ from .piksel import PikselIE
 from .videa import VideaIE
 from .twentymin import TwentyMinutenIE
 from .ustream import UstreamIE
-from .openload import (
-    OpenloadIE,
-    VerystreamIE,
-)
 from .videopress import VideoPressIE
 from .rutube import RutubeIE
 from .limelight import LimelightBaseIE
@@ -119,6 +115,7 @@ from .viqeo import ViqeoIE
 from .expressen import ExpressenIE
 from .zype import ZypeIE
 from .odnoklassniki import OdnoklassnikiIE
+from .kinja import KinjaEmbedIE
 
 
 class GenericIE(InfoExtractor):
@@ -1487,16 +1484,18 @@ class GenericIE(InfoExtractor):
                 'timestamp': 1432570283,
             },
         },
-        # OnionStudios embed
+        # Kinja embed
         {
             'url': 'http://www.clickhole.com/video/dont-understand-bitcoin-man-will-mumble-explanatio-2537',
             'info_dict': {
-                'id': '2855',
+                'id': '106351',
                 'ext': 'mp4',
                 'title': 'Don’t Understand Bitcoin? This Man Will Mumble An Explanation At You',
+                'description': 'Migrated from OnionStudios',
                 'thumbnail': r're:^https?://.*\.jpe?g$',
-                'uploader': 'ClickHole',
-                'uploader_id': 'clickhole',
+                'uploader': 'clickhole',
+                'upload_date': '20150527',
+                'timestamp': 1432744860,
             }
         },
         # SnagFilms embed
@@ -2749,9 +2748,9 @@ class GenericIE(InfoExtractor):
             return self.url_result(myvi_url)
 
         # Look for embedded soundcloud player
-        soundcloud_urls = SoundcloudIE._extract_urls(webpage)
+        soundcloud_urls = SoundcloudEmbedIE._extract_urls(webpage)
         if soundcloud_urls:
-            return self.playlist_from_matches(soundcloud_urls, video_id, video_title, getter=unescapeHTML, ie=SoundcloudIE.ie_key())
+            return self.playlist_from_matches(soundcloud_urls, video_id, video_title, getter=unescapeHTML)
 
         # Look for tunein player
         tunein_urls = TuneInBaseIE._extract_urls(webpage)
@@ -2893,6 +2892,12 @@ class GenericIE(InfoExtractor):
         senate_isvp_url = SenateISVPIE._search_iframe_url(webpage)
         if senate_isvp_url:
             return self.url_result(senate_isvp_url, 'SenateISVP')
+
+        # Look for Kinja embeds
+        kinja_embed_urls = KinjaEmbedIE._extract_urls(webpage, url)
+        if kinja_embed_urls:
+            return self.playlist_from_matches(
+                kinja_embed_urls, video_id, video_title)
 
         # Look for OnionStudios embeds
         onionstudios_url = OnionStudiosIE._extract_url(webpage)
@@ -3038,18 +3043,6 @@ class GenericIE(InfoExtractor):
         if twentymin_urls:
             return self.playlist_from_matches(
                 twentymin_urls, video_id, video_title, ie=TwentyMinutenIE.ie_key())
-
-        # Look for Openload embeds
-        openload_urls = OpenloadIE._extract_urls(webpage)
-        if openload_urls:
-            return self.playlist_from_matches(
-                openload_urls, video_id, video_title, ie=OpenloadIE.ie_key())
-
-        # Look for Verystream embeds
-        verystream_urls = VerystreamIE._extract_urls(webpage)
-        if verystream_urls:
-            return self.playlist_from_matches(
-                verystream_urls, video_id, video_title, ie=VerystreamIE.ie_key())
 
         # Look for VideoPress embeds
         videopress_urls = VideoPressIE._extract_urls(webpage)
